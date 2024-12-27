@@ -1,0 +1,40 @@
+settings:
+  seed: 2024
+
+# If you want to preprocess the data by yourself, you may need to specify the model configuration
+model:
+  model_dir: <dir for PLM and BLM models>
+  esm_version: esm2_t33_650M_UR50D # esm1v_t33_650M_UR90S_1 esm2_t33_650M_UR50D esm3
+  pubmed_version: BiomedNLP-BiomedBERT-base-uncased-abstract # BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext
+
+model_name: M3Site
+
+egnn:
+  edge_attr_dim: 1
+  output_dim: 16
+  dropout: 0.1
+  n_layers: 2
+  residual: False
+  embedding: False
+  embedding_dim: 64
+  mlp_num: 2
+  hidden_channels: 64
+
+dataset:
+  data_path: data
+  process: False # If you want to preprocess the data by yourself, you may need to set this to True
+  tag: # name for the dataset, e.g., preprocessed_3_abs
+  text_max_length: 512
+  split: 0.3
+  edge_radius: 8.0
+  property_dim: 62
+  batch_size: 24
+
+train:
+  gpu_id: 2
+  epochs: 100
+  lr: 1.0e-05
+  metrics: ['loss', 'accuracy', 'precision', 'recall', 'f1', 'auroc', 'auprc', 'mcc']
+  loss: [ce, 0.01]
+  lambda1: 0.1
+  lambda2: 0.001

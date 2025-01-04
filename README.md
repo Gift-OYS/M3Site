@@ -14,7 +14,7 @@ conda env create -f environment.yml
 
 If you want to preprocess the data by yourself, you can download the data from UniProt and filter, cluster, and split as the description in our manuscript. To help you access the property of protein structure, you can refer to `utils/get_property.py` to generate `.npy` files for each protein, and refer to this [repository](https://github.com/Gift-OYS/MMSite) for split approach.
 
-However, we recommend you to download and unzip the preprocessed data from the following [link](xxxx) to reproduce the main results in our paper for convenience. You can put all the downloaded data in the `data` folder.
+However, we recommend you to download and unzip the preprocessed data from the following [link](https://pan.baidu.com/s/1JP3OgoU7reIbSsz-RFwiXQ?pwd=5dnb) to reproduce the main results in our paper for convenience. You can put all the downloaded data in the `data` folder.
 
 ## 2. Training
 

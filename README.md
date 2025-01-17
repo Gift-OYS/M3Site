@@ -1,4 +1,4 @@
-# M<sup>3</sup>Site: Leveraging Multi-Class Multi-Modal Learning for Accurate Protein Active Site Iden-tification and Classification
+# M<sup>3</sup>Site: Leveraging Multi-Class Multi-Modal Learning for Accurate Protein Active Site Identification and Classification
 
 > This implementation is based on our previous work [MMSite: A Multi-modal Framework for the Identification of Active Sites in Proteins](https://openreview.net/pdf?id=XHdwlbNSVb) (NeurIPS 2024), whose code is available at [GitHub](https://github.com/Gift-OYS/MMSite).
 

@@ -1,7 +1,5 @@
 # M<sup>3</sup>Site: Leveraging Multi-Class Multi-Modal Learning for Accurate Protein Active Site Identification and Classification
 
-> This implementation is based on our previous work [MMSite: A Multi-modal Framework for the Identification of Active Sites in Proteins](https://openreview.net/pdf?id=XHdwlbNSVb) (NeurIPS 2024), whose code is available at [GitHub](https://github.com/Gift-OYS/MMSite).
-
 ## 1. Preparation
 
 ### 1.1 Environment
@@ -31,4 +29,4 @@ Then, you will get `best_model_xxx.pth` model in the `runs/timestamp` folder, wh
 
 ## 3. Inference & Demo
 
-To facilitate the use of our model, we provide a demo for inference based on Gradio. It is hosted at Hugging Face Spaces, and you can access it by the following [link](https://huggingface.co/spaces/GiftOYS/M3Site).
+To facilitate the use of our model, we provide a demo for inference based on Gradio. It is hosted at Hugging Face Spaces, and you can access it by the following [link](https://huggingface.co/spaces/anonymousforpaper/M3Site).

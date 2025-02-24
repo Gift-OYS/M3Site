@@ -29,4 +29,4 @@ Then, you will get `best_model_xxx.pth` model in the `runs/timestamp` folder, wh
 
 ## 3. Inference & Demo
 
-To facilitate the use of our model, we provide a demo for inference based on Gradio. It is hosted at Hugging Face Spaces, and you can access it by the following [link](https://huggingface.co/spaces/anonymousforpaper/M3Site).
+To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code is hosted in `app` folder.

@@ -1,0 +1,25 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch==2.3.1
+torchvision==0.18.1
+torchaudio==2.3.1
+gradio-molecule3d==0.0.6
+einops==0.8.0
+https://data.pyg.org/whl/torch-2.3.0%2Bcu121/pyg_lib-0.4.0%2Bpt23cu121-cp311-cp311-linux_x86_64.whl
+https://data.pyg.org/whl/torch-2.3.0%2Bcu121/torch_cluster-1.6.3%2Bpt23cu121-cp311-cp311-linux_x86_64.whl
+https://data.pyg.org/whl/torch-2.3.0%2Bcu121/torch_scatter-2.1.2%2Bpt23cu121-cp311-cp311-linux_x86_64.whl
+https://data.pyg.org/whl/torch-2.3.0%2Bcu121/torch_sparse-0.6.18%2Bpt23cu121-cp311-cp311-linux_x86_64.whl
+https://data.pyg.org/whl/torch-2.3.0%2Bcu121/torch_spline_conv-1.2.2%2Bpt23cu121-cp311-cp311-linux_x86_64.whl
+torch-geometric==2.6.1
+scikit-learn==1.5.0
+easydict==1.13
+biopython==1.83
+hadder==3.4
+biotite==0.41.0
+brotli==1.1.0
+msgpack-numpy==0.4.8
+transformers==4.41.2
+mdtraj==1.10.2
+numpy==1.26.4
+huggingface_hub==0.27.0
+ipywidgets==8.1.7

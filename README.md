@@ -7,6 +7,12 @@ You can manage the environment by Anaconda. We have provided the environment con
 ```bash
 conda env create -f environment.yml
 ```
+or you can create a new environment by `requirements.txt`:
+```bash
+conda create -n m3site python=3.11 dssp -c ostrokach -y
+conda activate m3site
+pip install -r requirements.txt
+```
 
 ### 1.2 Dataset
 
@@ -28,5 +34,7 @@ python train.py --config /path/to/config.yaml
 Then, you will get `best_model_xxx.pth` model in the `runs/timestamp` folder, which is the final model.
 
 ## 3. Inference & Demo
+
+For inference, you can use the trained model to predict the active site of a protein. You can refer to `app/inference.ipynb` for the inference process.
 
 To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code is hosted in `app` folder.

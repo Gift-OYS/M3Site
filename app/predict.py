@@ -1,7 +1,8 @@
 import sys
 import os
-sys.path.append(f'{os.getcwd()}/esm3')
+sys.path.append(os.getcwd())
 import torch
+import time
 from utils.util_functions import read_pdb, extract_sequence, get_features
 from Bio.PDB import PDBParser
 from hadder import AddHydrogen
@@ -14,41 +15,52 @@ from esm.models.esm3 import ESM3
 from esm.utils.constants.models import ESM3_OPEN_SMALL
 from esm.sdk.api import ESMProtein, SamplingConfig
 
-def model_predict(model, pdb_file, function):
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+
+def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, device='cpu'):
     function = 'Unknown' if function == '' else function
-
     model_path = f'pretrained/{model.lower()}.pth'
-    if model == 'M3Site-ESM3-abs':
-        plm_path = ESM3_OPEN_SMALL
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
-    elif model == 'M3Site-ESM3-full':
-        plm_path = ESM3_OPEN_SMALL
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
-    elif model == 'M3Site-ESM2-abs':
-        plm_path = 'facebook/esm2_t33_650M_UR50D'
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
-    elif model == 'M3Site-ESM2-full':
-        plm_path = 'facebook/esm2_t33_650M_UR50D'
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
-    elif model == 'M3Site-ESM1b-abs':
-        plm_path = 'facebook/esm1b_t33_650M_UR50S'
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
-    elif model == 'M3Site-ESM1b-full':
-        plm_path = 'facebook/esm1b_t33_650M_UR50S'
-        blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
 
-    login(token=os.environ.get("ESM3TOKEN"))
+    if plm_path is not None and blm_path is not None and os.path.exists(plm_path) and os.path.exists(blm_path):
+        pass
+    else:
+        if model == 'M3Site-ESM3-abs':
+            plm_path = ESM3_OPEN_SMALL
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
+        elif model == 'M3Site-ESM3-full':
+            plm_path = ESM3_OPEN_SMALL
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
+        elif model == 'M3Site-ESM2-abs':
+            plm_path = 'facebook/esm2_t33_650M_UR50D'
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
+        elif model == 'M3Site-ESM2-full':
+            plm_path = 'facebook/esm2_t33_650M_UR50D'
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
+        elif model == 'M3Site-ESM1b-abs':
+            plm_path = 'facebook/esm1b_t33_650M_UR50S'
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract'
+        elif model == 'M3Site-ESM1b-full':
+            plm_path = 'facebook/esm1b_t33_650M_UR50S'
+            blm_path = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
+
+        login(token=os.environ.get("ESM3TOKEN"))
 
     text_tokenizer = AutoTokenizer.from_pretrained(blm_path)
     text_model = AutoModel.from_pretrained(blm_path)
 
-    model = torch.load(model_path, map_location='cpu')
+    model = torch.load(model_path, map_location=device)
     if 'esm3' not in plm_path:
         seq_tokenizer = AutoTokenizer.from_pretrained(plm_path)
         seq_model = AutoModel.from_pretrained(plm_path)
     else:
-        seq_model = ESM3.from_pretrained(plm_path)
+        if os.path.exists(plm_path):
+            seq_model = ESM3.from_pretrained(plm_path, True, device)
+        else:
+            seq_model = ESM3.from_pretrained(plm_path, False, device)
 
+    st = time.time()
     # 得到structure
     structure = read_pdb(pdb_file)
 
@@ -104,15 +116,18 @@ def model_predict(model, pdb_file, function):
                 esm_rep=node_features,
                 prop=torch.tensor(prop, dtype=torch.float),
                 pos=torch.tensor(np.array(positions), dtype=torch.float),
-                func=func)
+                func=func).to(device)
 
+    start_time = time.time()
     model_output = model(data)
-    output = model_output.argmax(dim=-1).numpy()
-    confs = torch.max(model_output, dim=-1)[0].detach().numpy()
+    end_time = time.time()
+    print('Time:', end_time-st)
+    output = model_output.argmax(dim=-1).detach().cpu().numpy()
+    confs = torch.max(model_output, dim=-1)[0].detach().cpu().numpy()
 
     res = {'0':[], '1':[], '2':[], '3':[], '4':[], '5':[]}
     for i in range(len(output)):
         if output[i] != 0:
             res[str(output[i]-1)].append(i+1)   # 返回的是从1开始编号的
-            
-    return res, confs, sequence
+
+    return res, confs, sequence, end_time-start_time

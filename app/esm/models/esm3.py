@@ -232,9 +232,14 @@ class ESM3(nn.Module, ESM3InferenceClient):
     def from_pretrained(
         cls,
         model_name: str = ESM3_OPEN_SMALL,
+        use_local: str | bool = False,
         device: torch.device | str = "cpu",
     ) -> ESM3:
         from esm.pretrained import load_local_model
+
+        if use_local:
+            model: ESM3 = load_local_model(model_name, True, device=device)  # type: ignore
+            return model
         if model_name not in [ESM3_OPEN_SMALL]:
             raise ValueError(f"Model name {model_name} is not a valid ESM3 model name.")
         model: ESM3 = load_local_model(model_name, device=device)  # type: ignore

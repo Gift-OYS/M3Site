@@ -35,6 +35,8 @@ Then, you will get `best_model_xxx.pth` model in the `runs/timestamp` folder, wh
 
 ## 3. Inference & Demo
 
-For inference, you can use the trained model to predict the active site of a protein. You can refer to `app/inference.ipynb` for the inference process.
+For inference, you can use the trained model to predict the active site of a protein. You can refer to `app/inference.ipynb` for the inference process. 
+
+> *Tips*: If you use ESM3 to generate the protein embedding, you may need to have access the ESM3 model. You can refer to the [EvolutionaryScale/esm3-sm-open-v1](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1) for instruction.
 
 To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code is hosted in `app` folder.

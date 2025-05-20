@@ -85,14 +85,14 @@ LOCAL_MODEL_REGISTRY: dict[str, ModelBuilder] = {
 }
 
 
-def load_local_model(model_name: str, use_local: bool, device: torch.device | str = "cpu") -> nn.Module:
+def load_local_model(model_name: str, use_local: bool = False, device: torch.device | str = "cpu") -> nn.Module:
     name = model_name.split('/')[-1].replace('-', '_')
     if name not in LOCAL_MODEL_REGISTRY:
         raise ValueError(f"Model {name} not found in local model registry.")
     if use_local:
-        return LOCAL_MODEL_REGISTRY[name](model_name, device)
+        return LOCAL_MODEL_REGISTRY[name](pth_dir=model_name, device=device)
     else:
-        return LOCAL_MODEL_REGISTRY[name](device)
+        return LOCAL_MODEL_REGISTRY[name](device=device)
 
 
 # Register custom versions of ESM3 for use with the local inference API

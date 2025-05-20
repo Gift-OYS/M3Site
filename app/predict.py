@@ -2,7 +2,6 @@ import sys
 import os
 sys.path.append(os.getcwd())
 import torch
-import time
 from utils.util_functions import read_pdb, extract_sequence, get_features
 from Bio.PDB import PDBParser
 from hadder import AddHydrogen
@@ -60,7 +59,6 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
         else:
             seq_model = ESM3.from_pretrained(plm_path, False, device)
 
-    st = time.time()
     # 得到structure
     structure = read_pdb(pdb_file)
 
@@ -118,10 +116,7 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
                 pos=torch.tensor(np.array(positions), dtype=torch.float),
                 func=func).to(device)
 
-    start_time = time.time()
     model_output = model(data)
-    end_time = time.time()
-    print('Time:', end_time-st)
     output = model_output.argmax(dim=-1).detach().cpu().numpy()
     confs = torch.max(model_output, dim=-1)[0].detach().cpu().numpy()
 
@@ -130,4 +125,4 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
         if output[i] != 0:
             res[str(output[i]-1)].append(i+1)   # 返回的是从1开始编号的
 
-    return res, confs, sequence, end_time-start_time
+    return res, confs, sequence

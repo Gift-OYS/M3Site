@@ -1,6 +1,9 @@
 # M<sup>3</sup>Site: Leveraging Multi-Class Multi-Modal Learning for Accurate Protein Active Site Identification and Classification
 
-## 1. Environment
+## 🚀 Overview
+**M<sup>3</sup>Site** is a multi-modal deep learning framework designed for residue-level, multi-class prediction of protein active sites. By integrating sequence, structure, and functional text representations using state-of-the-art PLMs, EGNNs, and BLMs, M<sup>3</sup>Site achieves state-of-the-art performance. We also offer an interactive tool for users to easily visualize the results.
+
+## 🛠️ 1. Environment
 
 You can manage the environment by Anaconda. We have provided the environment configuration file `environment.yml` for reference. You can create the environment by the following command:
 ```bash
@@ -13,11 +16,11 @@ conda activate m3site
 pip install -r app/requirements.txt
 ```
 
-## 2. Dataset and Training
+## 📚 2. Dataset and Training
 
 ### 2.1 Use Preprocessed Data
 
-#### 2.1.1 Dataset
+#### 📁 Dataset
 
 We have provided the preprocessed data `esm3_abs.zip` in [LINK](https://pan.baidu.com/s/1JP3OgoU7reIbSsz-RFwiXQ?pwd=5dnb) to reproduce the main results in our paper for convenience. You can download and unzip the data to the `data` folder. The preprocessed data contains 25,883 protein as the type `torch_geometric.data.data.Data`. For each protein `UniProt_ID.pt`, the data contains the following attributes:
 - `x`: The index of the amino acids in the protein sequence, with shape `[num_nodes, 1]`.
@@ -60,9 +63,9 @@ data/
         └── test_0.9.tsv
 ```
 
-> *Tips*: If you want to just replace the PLM or BLM, you just need to replace the `esm_rep` and `func` attributes in the `torch_geometric.data.data.Data` object.
+> 💡: If you want to just replace the PLM or BLM, you just need to replace the `esm_rep` and `func` attributes in the `torch_geometric.data.data.Data` object.
 
-#### 2.1.2 Training
+#### ⚙️ Training
 
 If you want to train the model using our preprocessed data, you just need to:
 1. Specify the data path `dataset:data_path` in the `configs/config.yaml` file. 
@@ -76,7 +79,7 @@ After the training, you will get the training logs and checkpoints in the `runs/
 
 ### 2.2 Use Custom Data
 
-#### 2.2.1 Preprocess the Data from Scratch
+#### 🔧 Preprocess the Data from Scratch
 
 If you want to preprocess the data from scratch, you can download the data from [UniProt](https://www.uniprot.org/) and [AlphaFold database](https://alphafold.com/). and filter, cluster, and split as the description in our manuscript. You can refer to the [this repository](https://github.com/Gift-OYS/MMSite) for the details to cluster and split the data. After that, you should put your `pdb` files in the `data/raw` folder.
 
@@ -103,19 +106,19 @@ data/
 
 **Prepare Pretrained PLM and BLM**: When you train our M<sup>3</sup>Site model from scratch, you need to prepare the pretrained PLM and BLM model, and place them in the `pretrained_model` folder.
 
-#### 2.2.2 Training
+#### ⚙️ Training
 
-Similar to Section 2.1.2, you should specify the data path `dataset:data_path` and the split threshold `dataset:split` in the `configs/config.yaml` file. Besides, you should also specify the pretrained PLM and BLM model path `model:model_dir` and set `dataset:process` to `True`. After that, you can run the training command:
+Similar to steps of Section 2.1, you should specify the data path `dataset:data_path` and the split threshold `dataset:split` in the `configs/config.yaml` file. Besides, you should also specify the pretrained PLM and BLM model path `model:model_dir` and set `dataset:process` to `True`. After that, you can run the training command:
 ```bash
 python train.py --config /path/to/config.yaml
 ```
 After the training, you will get the training logs and checkpoints in the `runs/timestamp` folder. The training logs will be saved in `run.log`, and the checkpoints will be saved as `best_model_xxx.pth` files.
 
-## 3. Inference & Demo
+## 🔎 3. Inference & Demo
 
 For inference, you can use the trained model to predict the active site of a protein. You can refer to `app/inference.ipynb` for the inference process. We also provide some cases in the `app/case_study` folder, which contains some example `.pdb` files. You can use these files to test the inference process.
 
-**Model Zoo**
+### 🧠 Model Zoo
 Here we provide various version of M<sup>3</sup>Site model. You can download them from the links below and put them in the `app/pretrained` folder to use them for inference. The model zoo contains the following models:
 | Version | Download Link |
 |------------|-------------|
@@ -126,6 +129,8 @@ Here we provide various version of M<sup>3</sup>Site model. You can download the
 | m3site-esm1b-abs | [LINK](https://pan.baidu.com/s/1A4uF8anGw4evTwrSvbspew?pwd=7j9e) |
 | m3site-esm1b-full | [LINK](https://pan.baidu.com/s/1mCDLSCxzzs2aBo2ngNEBHQ?pwd=ek7u) |
 
-> *Tips*: If you use ESM3 to generate the protein embedding, you may need to have access the ESM3 model. You can refer to the [EvolutionaryScale/esm3-sm-open-v1](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1) for instruction.
+> ⚠️: If you use ESM3 to generate the protein embedding, you may need to have access the ESM3 model. You can refer to the [EvolutionaryScale/esm3-sm-open-v1](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1) for instruction.
 
-To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code with Dockerfile are in the `app` folder. You can directly deploy it in [Hugging Face Spaces](https://huggingface.co/spaces) with Docker SDK (don't forget to add a Secret named `ESM3TOKEN`) or run it locally. 
+### 🌐 Gradio Web Demo
+
+To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code with Dockerfile are in the `app` folder. You can directly deploy it in [Hugging Face Spaces](https://huggingface.co/spaces) with **Docker SDK (don't forget to add a Secret named `ESM3TOKEN`)** or run it locally. 

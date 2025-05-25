@@ -121,7 +121,7 @@ For inference, you can use the trained model to predict the active site of a pro
 ### 🧠 Model Zoo
 Here we provide various version of M<sup>3</sup>Site model. You can download them from the links below and put them in the `app/pretrained` folder to use them for inference. The model zoo contains the following models:
 | Version | Download Link |
-|------------|-------------|
+|:---------:|:-----------:|
 | m3site-esm3-abs | [LINK](https://pan.baidu.com/s/1EyfESnZDxsGpSeVLouxXBQ?pwd=dcjt) |
 | m3site-esm3-full | [LINK](https://pan.baidu.com/s/1EYFfGxpsmhPAK9ggbJl47A?pwd=4cqy) |
 | m3site-esm2-abs | [LINK](https://pan.baidu.com/s/10kpfNKUcXzbZol70N4nHow?pwd=6nrn) |

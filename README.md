@@ -101,11 +101,11 @@ data/
         └── test_0.x.tsv
 ```
 
-**Prepare Pretrained PLM and BLM**: When you train our M<sup>3</sup>Site model from scratch, you need to prepare the pretrained PLM and BLM model, and place them in the `pretrained_model` folder. As for the specific type, you can refer to our paper
+**Prepare Pretrained PLM and BLM**: When you train our M<sup>3</sup>Site model from scratch, you need to prepare the pretrained PLM and BLM model, and place them in the `pretrained_model` folder.
 
 #### 2.2.2 Training
 
-Similar to Section 2.1.2, you should specify the data path `dataset:data_path` and the split threshold `dataset:split` in the `configs/config.yaml` file. Besides, you should also specify the pretrained PLM and BLM model path in the `configs/config.yaml` file. After that, you can run the training command:
+Similar to Section 2.1.2, you should specify the data path `dataset:data_path` and the split threshold `dataset:split` in the `configs/config.yaml` file. Besides, you should also specify the pretrained PLM and BLM model path `model:model_dir` and set `dataset:process` to `True`. After that, you can run the training command:
 ```bash
 python train.py --config /path/to/config.yaml
 ```

@@ -128,4 +128,4 @@ Here we provide various version of M<sup>3</sup>Site model. You can download the
 
 > *Tips*: If you use ESM3 to generate the protein embedding, you may need to have access the ESM3 model. You can refer to the [EvolutionaryScale/esm3-sm-open-v1](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1) for instruction.
 
-To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code with Dockerfile are in the `app` folder. You can directly deploy it in [Hugging Face Spaces](https://huggingface.co/spaces) or run it locally.
+To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code with Dockerfile are in the `app` folder. You can directly deploy it in [Hugging Face Spaces](https://huggingface.co/spaces) with Docker SDK (don't forget to add a Secret named `ESM3TOKEN`) or run it locally. 

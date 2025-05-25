@@ -23,7 +23,7 @@ egnn:
 dataset:
   data_path: data
   process: False # If you want to preprocess the data by yourself, you may need to set this to True
-  tag: # name for the dataset, e.g., preprocessed_3_abs
+  tag: 3_abs
   text_max_length: 512
   split: 0.3
   edge_radius: 8.0
@@ -31,7 +31,7 @@ dataset:
   batch_size: 24
 
 train:
-  gpu_id: 2
+  gpu_id: 0
   epochs: 100
   lr: 1.0e-05
   metrics: ['loss', 'accuracy', 'precision', 'recall', 'f1', 'auroc', 'auprc', 'mcc']

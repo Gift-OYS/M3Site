@@ -17,31 +17,46 @@ class ProteinDataset(Dataset):
         self.config = config
         self.type = type
         self.parser = PDBParser(QUIET=True)
-        self.seq_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
-        self.seq_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
-        self.text_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
-        self.text_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
+        if process:
+            self.seq_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
+            self.seq_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
+            self.text_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
+            self.text_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
         self.text_max_length = config.dataset.text_max_length
         self.threshold = config.dataset.edge_radius
         self.root = config.dataset.data_path
-        self.df = pd.read_csv(f'{self.root}/split/{type}/{type}_{config.dataset.split}.tsv', sep='\t')
+        self.df = pd.read_csv(f'{self.root}/splits/{type}/{type}_{config.dataset.split}_new.tsv', sep='\t')
         self.df = self.df.dropna(subset=['Function [CC]']).reset_index(drop=True)
         self.label_json = json.load(open(f'{self.root}/label.json', 'r'))
 
-        # to_accelerate_read 1
         self.pre_return_list = []
-        for file in tqdm(os.listdir(self.raw_dir)):
-            entity = file.split('-')[1]
-            if file.endswith('.pdb') and entity in self.df['Entry'].values:
-                propcess_dir = os.path.join(self.root, config.dataset.tag)
-                pt_path = os.path.join(propcess_dir, f'{file.split(".")[0]}.pt')
-                if os.path.exists(pt_path):
-                    tmp_d = torch.load(pt_path)
-                    if tmp_d.x.shape[0] == len(self.label_json[entity]):
-                        self.pre_return_list.append(file)
-        # to_accelerate_read 2
-        names = [i.split('.')[0] for i in self.pre_return_list]
-        self.pre_processed_file_names = [f'{name}.pt' for name in names]
+        for entity in self.df['Entry'].values:
+            if entity not in self.label_json:
+                raise ValueError(f'Entity {entity} not found in label.json')
+            pt_path = os.path.join(self.processed_dir, f'{entity}.pt')
+            if not os.path.exists(pt_path):
+                raise ValueError(f'Processed file {pt_path} does not exist.')
+            tmp_d = torch.load(pt_path)
+            if tmp_d.x.shape[0] != len(self.label_json[entity]):
+                print(tmp_d.x)
+                print(tmp_d.x.shape[0], len(self.label_json[entity]))
+                # raise ValueError(f'Processed file {pt_path} has inconsistent node count with label.json for entity {entity}.')
+            self.pre_return_list.append(f'{entity}.pt')
+
+        # # to_accelerate_read 1
+        # self.pre_return_list = []
+        # for file in tqdm(os.listdir(self.raw_dir)):
+        #     entity = file.split('-')[1]
+        #     if file.endswith('.pdb') and entity in self.df['Entry'].values:
+        #         propcess_dir = os.path.join(self.root, config.dataset.tag)
+        #         pt_path = os.path.join(propcess_dir, f'{file.split(".")[0]}.pt')
+        #         if os.path.exists(pt_path):
+        #             tmp_d = torch.load(pt_path)
+        #             if tmp_d.x.shape[0] == len(self.label_json[entity]):
+        #                 self.pre_return_list.append(file)
+        # # to_accelerate_read 2
+        # names = [i.split('.')[0] for i in self.pre_return_list]
+        # self.pre_processed_file_names = [f'{name}.pt' for name in names]
 
         super().__init__(self.root, transform, pre_transform)
         if process:
@@ -51,9 +66,9 @@ class ProteinDataset(Dataset):
     def raw_file_names(self):
         return self.pre_return_list
 
-    @property
-    def processed_file_names(self):
-        return self.pre_processed_file_names
+    # @property
+    # def processed_file_names(self):
+    #     return self.pre_processed_file_names
 
     @property
     def raw_dir(self):
@@ -91,9 +106,10 @@ class ProteinDataset(Dataset):
         return len(self.raw_file_names)
 
     def __getitem__(self, idx):
-        name = self.raw_file_names[idx].split('.')[0]
-        entity = name.split('-')[1]
-        label = torch.tensor(self.label_json[entity], dtype=torch.long)
+        name = self.raw_file_names[idx]
+        # name = self.raw_file_names[idx].split('.')[0]
+        # entity = name.split('-')[1]
+        label = torch.tensor(self.label_json[name], dtype=torch.long)
         data = torch.load(os.path.join(self.processed_dir, f'{name}.pt'))
         data.y = label
         return data
@@ -104,7 +120,7 @@ class ProteinDataset(Dataset):
             return None
         prop = np.load(prop_path)
         return torch.tensor(prop, dtype=torch.float)
-    
+
     def _read_pdb(self, file_path):
         parser = PDBParser(QUIET=True)
         structure = parser.get_structure('protein', file_path)

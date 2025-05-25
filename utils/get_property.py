@@ -135,7 +135,7 @@ def get_dihedrals_dim16(structure, pdb_path):
             sin_cos_angles.append(np.sin(angle))
             sin_cos_angles.append(np.cos(angle))
         angles_matrix[i] += sin_cos_angles
-        
+
     return np.array(angles_matrix)
 
 

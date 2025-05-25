@@ -48,8 +48,8 @@ class M3Site(torch.nn.Module):
             egnn_data[graph_idx][:egnn_output[mask].shape[0]] = egnn_output[mask]
 
         total = torch.cat([esm_data, egnn_data], dim=-1)
-        stru_seq_seq = self.funicross1(egnn_data, esm_data, esm_data, func_data)
-        seq_stru_stru = self.funicross2(esm_data, egnn_data, egnn_data, func_data)
+        stru_seq_seq, attn_weights_1 = self.funicross1(egnn_data, esm_data, esm_data, func_data, return_attn=True)
+        seq_stru_stru, attn_weights_2 = self.funicross2(esm_data, egnn_data, egnn_data, func_data, return_attn=True)
         fusion_out = torch.cat([stru_seq_seq, seq_stru_stru], dim=-1)
 
         combined = torch.cat([fusion_out, total], dim=-1)
@@ -79,44 +79,6 @@ class M3Site(torch.nn.Module):
         }
 
 
-    def _softlabel_loss_3d(self, seq_features, text_features, tau):
-        seq_features = seq_features.mean(dim=1)
-        text_features = text_features.mean(dim=1)
-        seq_sim, text_sim = cos_sim(seq_features, seq_features), cos_sim(text_features, text_features)
-        logits_per_seq, logits_per_text = self._get_similarity(seq_features, text_features)
-        cross_modal_loss = (kl_loss(logits_per_seq, seq_sim, tau=tau) + 
-                            kl_loss(logits_per_text, text_sim, tau=tau)) / 2.0
-        return cross_modal_loss
-
-    def _get_similarity(self, image_features, text_features):
-        image_features = image_features / image_features.norm(dim=1, keepdim=True)
-        text_features = text_features / text_features.norm(dim=1, keepdim=True)
-        logits_per_image = image_features @ text_features.t()
-        logits_per_text = logits_per_image.t()
-        return logits_per_image, logits_per_text
-
-    def _get_model_output(self, input_ids, attention_mask, modal):
-        if modal == 'text':
-            model = self.text_model
-        else:
-            model = self.seq_model
-        return model(input_ids=input_ids, attention_mask=attention_mask)
-
-    def _get_text_branch_output(self, text_outputs):
-        texts_output = [self.texts_encoder[i](text_outputs[i][0]) for i in range(self.num_attr)]
-        texts_output_cls = [texts_output[idx][:, 0, :].unsqueeze(1) for idx in range(len(texts_output)) if idx != 3]
-        texts_output_cls = torch.cat(texts_output_cls, dim=1)
-        texts_output_cls = self.text_suffix_transformer(texts_output_cls)
-        text_func = texts_output[3]
-        x = texts_output_cls
-        for i in range(4):
-            _x = x
-            x = self.text_crosses[i](x, text_func, text_func)
-            x = self.norms[i](x[0] + _x)
-        text_branch_output = x
-        return text_branch_output
-    
-
 class CrossAttention(nn.Module):
     def __init__(self, dim1, dim2, dropout=0.1):
         super(CrossAttention, self).__init__()
@@ -125,7 +87,7 @@ class CrossAttention(nn.Module):
         self.value = nn.Linear(dim2, dim1)
         self.out = nn.Linear(dim1, dim1)
 
-    def forward(self, Q, K, V):
+    def forward(self, Q, K, V, return_attn=False):
         Q_proj = Q
         K_proj = self.key(K)
         V_proj = self.value(V)
@@ -134,7 +96,10 @@ class CrossAttention(nn.Module):
         attention_probs = F.softmax(attention_scores, dim=-1)
         context = torch.matmul(attention_probs, V_proj)
         output = self.out(context)
-        return output
+        if return_attn:
+            return output, attention_probs
+        else:
+            return output
 
 
 class FeedForward(nn.Module):
@@ -165,9 +130,17 @@ class FunICross(nn.Module):
         self.ff = FeedForward(dim1, ff_dim, dropout, condition_dim)
         self.ff_layer_norm = nn.LayerNorm(dim1)
 
-    def forward(self, Q, K, V, condition=None):
-        attn_output = self.attn(Q, K, V)
+    def forward(self, Q, K, V, condition=None, return_attn=False):
+        if return_attn:
+            attn_output, attn_weights = self.attn(Q, K, V, return_attn=True)
+        else:
+            attn_output = self.attn(Q, K, V)
+
         Q = self.attn_layer_norm(Q + attn_output)
         ff_output = self.ff(Q, condition)
         Q = self.ff_layer_norm(Q + ff_output)
-        return Q
+
+        if return_attn:
+            return Q, attn_weights
+        else:
+            return Q

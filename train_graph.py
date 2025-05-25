@@ -170,7 +170,7 @@ def prepare_dataloaders(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train the model')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help="running configurations", type=str, required=False, default=f'{proj_path}/configs/config_graph.yaml')
+    parser.add_argument('--config', help="running configurations", type=str, required=False, default=f'{proj_path}/configs/config.yaml')
     args = parser.parse_args()
     config = read_config(args.config)
     _, device, pprint = prepare(config)

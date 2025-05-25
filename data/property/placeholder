@@ -1,0 +1,1 @@
+If you want to preprocess the data from scratch, after you run the `utils/get_property.py` script, you will get the `UniProtID_prop.npy` files in the `data/property` folder.

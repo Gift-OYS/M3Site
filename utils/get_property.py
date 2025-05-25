@@ -247,7 +247,9 @@ def get_residue_features_dim27(structure):
 
 if __name__ == '__main__':
 
-    data_dir = ''   # data dir, who has the raw and property folders
+    data_dir = '/path/to/data/dir'   # data dir, who has the raw and property folders
+    if not os.path.exists(os.path.join(data_dir, 'property')):
+        os.makedirs(os.path.join(data_dir, 'property'))
     parser = PDBParser(QUIET=True)
 
     seq_names = ['I1BJN3', 'I1K0K6', 'I1R9B2', 'I1RF61']

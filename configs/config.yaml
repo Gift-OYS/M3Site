@@ -1,9 +1,9 @@
 settings:
-  seed: 2024
+  seed: 2025
 
 # If you want to preprocess the data by yourself, you may need to specify the model configuration
 model:
-  model_dir: <dir for PLM and BLM models>
+  model_dir: /path/to/your/model/dir
   esm_version: esm2_t33_650M_UR50D # esm1v_t33_650M_UR90S_1 esm2_t33_650M_UR50D esm3
   pubmed_version: BiomedNLP-BiomedBERT-base-uncased-abstract # BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext
 

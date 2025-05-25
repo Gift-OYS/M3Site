@@ -75,7 +75,7 @@ def fuse(model, train_loader, val_loader):
             checkpoint_path_total = f"{config.train.save_path}/best_model_{best_f_score_token}.pth"
             pprint(f"Saving the best model to {checkpoint_path_total}")
             torch.save(model, checkpoint_path_total)
-    
+
     for k, v in best_metric_token.items():
         info_str_token += f"{k}: {v:.4f}, "
     pprint(info_str_token)

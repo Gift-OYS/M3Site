@@ -79,16 +79,16 @@ class ProteinDataset(Dataset):
     @property
     def property_dir(self):
         return os.path.join(self.root, 'property')
-    
+
     def download(self):
         pass
 
     def my_process(self):
-        for raw_path in tqdm(self.raw_paths):
+        for raw_path in tqdm(self.raw_dir):
 
-            name = raw_path.split('/')[-1].split('.')[0]
-            if os.path.exists(os.path.join(self.processed_dir, f'{name}.pt')):
-                continue
+            # name = raw_path.split('/')[-1].split('.')[0]
+            # if os.path.exists(os.path.join(self.processed_dir, f'{name}.pt')):
+            #     continue
 
             entity = raw_path.split('/')[-1].split('-')[1]
             structure = self._read_pdb(raw_path)

@@ -1,0 +1,1 @@
+If you want to preprocess the data from scratch, you should put your pretrained PLM model and BLM model in the `pretrained_model` folder.

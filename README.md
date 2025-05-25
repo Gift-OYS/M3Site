@@ -115,6 +115,17 @@ After the training, you will get the training logs and checkpoints in the `runs/
 
 For inference, you can use the trained model to predict the active site of a protein. You can refer to `app/inference.ipynb` for the inference process. We also provide some cases in the `app/case_study` folder, which contains some example `.pdb` files. You can use these files to test the inference process.
 
+**Model Zoo**
+Here we provide various version of M<sup>3</sup>Site model. You can download them from the links below and put them in the `app/pretrained` folder to use them for inference. The model zoo contains the following models:
+| Version | Download Link |
+|------------|-------------|
+| m3site-esm3-abs | [LINK](https://pan.baidu.com/s/1EyfESnZDxsGpSeVLouxXBQ?pwd=dcjt) |
+| m3site-esm3-full | [LINK](https://pan.baidu.com/s/1EYFfGxpsmhPAK9ggbJl47A?pwd=4cqy) |
+| m3site-esm2-abs | [LINK](https://pan.baidu.com/s/10kpfNKUcXzbZol70N4nHow?pwd=6nrn) |
+| m3site-esm2-full | [LINK](https://pan.baidu.com/s/1aZ4ug5F8ns9U6jmcSCrQig?pwd=ehhr) |
+| m3site-esm1b-abs | [LINK](https://pan.baidu.com/s/1A4uF8anGw4evTwrSvbspew?pwd=7j9e) |
+| m3site-esm1b-full | [LINK](https://pan.baidu.com/s/1mCDLSCxzzs2aBo2ngNEBHQ?pwd=ek7u) |
+
 > *Tips*: If you use ESM3 to generate the protein embedding, you may need to have access the ESM3 model. You can refer to the [EvolutionaryScale/esm3-sm-open-v1](https://huggingface.co/EvolutionaryScale/esm3-sm-open-v1) for instruction.
 
 To facilitate the use of our model, we provide a demo for inference based on Gradio. The source code with Dockerfile are in the `app` folder. You can directly deploy it in [Hugging Face Spaces](https://huggingface.co/spaces) or run it locally.

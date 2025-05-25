@@ -1,7 +1,3 @@
 __pycache__
-app/pretrained
-app/inference_old*.ipynb
-rebuttal*
-data/3_abs*
-data/esm3_abs*
+data/esm3_abs
 runs

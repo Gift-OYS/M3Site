@@ -6,7 +6,7 @@ reps1 = [
         "style": "cartoon",  # line, stick, sphere, cartoon, surface
         "color": "whiteCarbon",  # blue, red, green, yellow, whiteCarbon
         "residue_range": "",  # 3-15
-        "around": 0,  # 周围范围，默认0
+        "around": 0,  # around range, default 0
         "byres": False,
         "visible": False
     },
@@ -22,7 +22,7 @@ default_reps = [
         "style": style_list[0][0].lower() + style_list[0][1:],
         "color": color_list[0][0].lower() + color_list[0][1:] + "Carbon",  # whiteCarbon
         "residue_range": "",  # 3-15
-        "around": 0,  # 周围范围，默认0
+        "around": 0,  # around range, default 0
         "byres": False,
         "visible": False
     },

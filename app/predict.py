@@ -59,10 +59,10 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
         else:
             seq_model = ESM3.from_pretrained(plm_path, False, device)
 
-    # 得到structure
+    # get structure
     structure = read_pdb(pdb_file)
 
-    # 得到prop
+    # get property features
     parser = PDBParser(QUIET=True)
     pdb_file_addH = pdb_file.split('.')[0] + '_addH.pdb'
     AddHydrogen(pdb_file, pdb_file_addH)
@@ -76,12 +76,12 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
     prop = np.concatenate((ss8, angles_matrix, atom_feature, hbond_feature, pef_feature, residue_feature), axis=1)
     os.remove(pdb_file_addH)
 
-    # 提取三维信息
+    # extract 3D 
     alpha_carbons = [atom for atom in structure.get_atoms() if atom.get_id() == 'CA']
     positions = [atom.coord for atom in alpha_carbons]
     atom_indices = list(range(len(alpha_carbons)))
 
-    # 获取结点特征
+    # get sequence
     sequence = extract_sequence(structure)
     assert len(sequence) == len(alpha_carbons)
     if 'esm3' not in plm_path:
@@ -92,7 +92,7 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
         output = seq_model.forward_and_sample(protein_tensor, SamplingConfig(return_per_residue_embeddings=True))
         node_features = output.per_residue_embedding[1:-1]
 
-    # 构建边
+    # construct graph
     edges, edge_attrs = [], []
     for i, atom1 in enumerate(alpha_carbons):
         for j, atom2 in enumerate(alpha_carbons):
@@ -104,10 +104,10 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
     edge_index = torch.tensor(np.array(edges), dtype=torch.long).t().contiguous()
     edge_attr = torch.tensor(np.array(edge_attrs), dtype=torch.float)
 
-    # 处理文本
+    # process text
     func = get_features(function, text_tokenizer, text_model, modal='text')
 
-    # 构建Data对象
+    # construct Data object
     data = Data(x=torch.tensor(np.array(atom_indices), dtype=torch.long).unsqueeze(1),
                 edge_index=edge_index,
                 edge_attr=edge_attr.unsqueeze(1),
@@ -123,6 +123,6 @@ def model_predict(model, pdb_file, function, plm_path=None, blm_path=None, devic
     res = {'0':[], '1':[], '2':[], '3':[], '4':[], '5':[]}
     for i in range(len(output)):
         if output[i] != 0:
-            res[str(output[i]-1)].append(i+1)   # 返回的是从1开始编号的
+            res[str(output[i]-1)].append(i+1)   # start from 1
 
     return res, confs, sequence

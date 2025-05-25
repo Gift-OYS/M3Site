@@ -42,7 +42,7 @@ def update_reps_based_on_radio(*args):
             detail_predicted_sites['b'].append(
                 {'residue_type': sequence[i], 'number': i+1, 'confidence': confs[i]}
             )
-    # 2.1 处理背景
+    # 2.1 process background
     backgrounds = detail_predicted_sites.get('b', [])
     for r in backgrounds:
         confidence_details.append([
@@ -51,7 +51,7 @@ def update_reps_based_on_radio(*args):
             r['number'],
             r.get('confidence', 'N/A')
         ])
-    # 2.2 处理活性位点
+    # 2.2 process active site
     for i in range(0, len(active_sites), 2):
         x, y = active_sites[i], active_sites[i+1]
         site_key = str(i//2)
@@ -194,7 +194,7 @@ with gr.Blocks(title="M3Site-app", theme=gr.themes.Default()) as demo:
     #                 }
     #                 ```''')
     
-    # 绑定事件
+    # binding change
     input_struct.change(check_input, inputs=input_struct, outputs=btn)
     btn.click(
         fn=able_tip, 

@@ -16,57 +16,38 @@ class ProteinDataset(Dataset):
     def __init__(self, config, type, transform=None, pre_transform=None, process=False):
         self.config = config
         self.type = type
-        self.parser = PDBParser(QUIET=True)
-        if process:
-            self.seq_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
-            self.seq_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
-            self.text_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
-            self.text_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
-        self.text_max_length = config.dataset.text_max_length
-        self.threshold = config.dataset.edge_radius
         self.root = config.dataset.data_path
         self.df = pd.read_csv(f'{self.root}/splits/{type}/{type}_{config.dataset.split}.tsv', sep='\t')
         self.label_json = json.load(open(f'{self.root}/label.json', 'r'))
 
-        # check data consistency
-        self.pre_return_list = []
-        for entity in self.df['Entry'].values:
-            if entity not in self.label_json:
-                raise ValueError(f'Entity {entity} not found in label.json')
-            pt_path = os.path.join(self.processed_dir, f'{entity}.pt')
-            if not os.path.exists(pt_path):
-                raise ValueError(f'Processed file {pt_path} does not exist.')
-            tmp_d = torch.load(pt_path)
-            if tmp_d.x.shape[0] != len(self.label_json[entity]):
-                raise ValueError(f'Processed file {pt_path} has inconsistent node count with label.json for entity {entity}.')
-            self.pre_return_list.append(entity)
-
-        # # to_accelerate_read 1
-        # self.pre_return_list = []
-        # for file in tqdm(os.listdir(self.raw_dir)):
-        #     entity = file.split('-')[1]
-        #     if file.endswith('.pdb') and entity in self.df['Entry'].values:
-        #         propcess_dir = os.path.join(self.root, config.dataset.tag)
-        #         pt_path = os.path.join(propcess_dir, f'{file.split(".")[0]}.pt')
-        #         if os.path.exists(pt_path):
-        #             tmp_d = torch.load(pt_path)
-        #             if tmp_d.x.shape[0] == len(self.label_json[entity]):
-        #                 self.pre_return_list.append(file)
-        # # to_accelerate_read 2
-        # names = [i.split('.')[0] for i in self.pre_return_list]
-        # self.pre_processed_file_names = [f'{name}.pt' for name in names]
+        if not process:
+            # check data consistency
+            self.pre_return_list = []
+            for entity in self.df['Entry'].values:
+                if entity not in self.label_json:
+                    raise ValueError(f'Entity {entity} not found in label.json')
+                pt_path = os.path.join(self.processed_dir, f'{entity}.pt')
+                if not os.path.exists(pt_path):
+                    raise ValueError(f'Processed file {pt_path} does not exist.')
+                tmp_d = torch.load(pt_path)
+                if tmp_d.x.shape[0] != len(self.label_json[entity]):
+                    raise ValueError(f'Processed file {pt_path} has inconsistent node count with label.json for entity {entity}.')
+                self.pre_return_list.append(entity)
+        else:
+            self.parser = PDBParser(QUIET=True)
+            self.threshold = config.dataset.edge_radius
+            self.text_max_length = config.dataset.text_max_length
+            self.seq_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
+            self.seq_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.esm_version}')
+            self.text_tokenizer = AutoTokenizer.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
+            self.text_model = AutoModel.from_pretrained(f'{config.model.model_dir}/{config.model.pubmed_version}')
+            self.my_process()
 
         super().__init__(self.root, transform, pre_transform)
-        if process:
-            self.my_process()
 
     @property
     def raw_file_names(self):
         return self.pre_return_list
-
-    # @property
-    # def processed_file_names(self):
-    #     return self.pre_processed_file_names
 
     @property
     def raw_dir(self):
@@ -84,29 +65,26 @@ class ProteinDataset(Dataset):
         pass
 
     def my_process(self):
-        for raw_path in tqdm(self.raw_dir):
-
-            # name = raw_path.split('/')[-1].split('.')[0]
-            # if os.path.exists(os.path.join(self.processed_dir, f'{name}.pt')):
-            #     continue
-
-            entity = raw_path.split('/')[-1].split('-')[1]
-            structure = self._read_pdb(raw_path)
-            prop = self._get_props(entity)
+        print('Preprocessing data...')
+        files = os.listdir(self.raw_dir)
+        self.pre_return_list = []
+        for file in tqdm(files):
+            if '_' in file:
+                file = file.split('-')[1]
+            structure = self._read_pdb(file)
+            prop = self._get_props(file)
             if prop is None:
                 continue
-            data = self._get_graph(structure, prop, entity)
-            name = raw_path.split('/')[-1].split('.')[0]
-            print('Saving', name)
-            torch.save(data, os.path.join(self.processed_dir, f'{name}.pt'))
+            data = self._get_graph(structure, prop)
+            torch.save(data, os.path.join(self.processed_dir, f'{file}.pt'))
+            self.pre_return_list.append(file)
+        print('Preprocessing done!')
 
     def __len__(self):
         return len(self.raw_file_names)
 
     def __getitem__(self, idx):
         name = self.raw_file_names[idx]
-        # name = self.raw_file_names[idx].split('.')[0]
-        # entity = name.split('-')[1]
         label = torch.tensor(self.label_json[name], dtype=torch.long)
         data = torch.load(os.path.join(self.processed_dir, f'{name}.pt'))
         data.y = label
@@ -119,9 +97,11 @@ class ProteinDataset(Dataset):
         prop = np.load(prop_path)
         return torch.tensor(prop, dtype=torch.float)
 
-    def _read_pdb(self, file_path):
-        parser = PDBParser(QUIET=True)
-        structure = parser.get_structure('protein', file_path)
+    def _read_pdb(self, file):
+        file_path = os.path.join(self.raw_dir, f'{file}.pdb')
+        if not os.path.exists(file_path):
+            file_path = os.path.join(self.raw_dir, f'AF-{file}-F1-model_v4.pdb')
+        structure = self.parser.get_structure('protein', file_path)
         return structure
     
     def _extract_sequence(self, structure):
@@ -151,17 +131,17 @@ class ProteinDataset(Dataset):
                 outputs = model(**inputs)
             return outputs.pooler_output[0]
 
-    def _get_graph(self, structure, prop, entity):
+    def _get_graph(self, structure, prop):
         alpha_carbons = [atom for atom in structure.get_atoms() if atom.get_id() == 'CA']
         positions = [atom.coord for atom in alpha_carbons]
         atom_indices = list(range(len(alpha_carbons)))
         
-        # 获取结点特征
+        # get sequence
         sequence = self._extract_sequence(structure)
         assert len(sequence) == len(alpha_carbons)
         node_features = self._get_features(sequence, self.seq_tokenizer, self.seq_model)
 
-        # 构建边
+        # construct edge_index and edge_attr
         edges, edge_attrs = [], []
         for i, atom1 in enumerate(alpha_carbons):
             for j, atom2 in enumerate(alpha_carbons):

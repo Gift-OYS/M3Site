@@ -6,11 +6,11 @@ You can manage the environment by Anaconda. We have provided the environment con
 ```bash
 conda env create -f environment.yml
 ```
-or you can create the environment by `requirements.txt`:
+or you can create the environment by `app/requirements.txt`:
 ```bash
 conda create -n m3site python=3.11 dssp -c ostrokach -y
 conda activate m3site
-pip install -r requirements.txt
+pip install -r app/requirements.txt
 ```
 
 ## 2. Dataset and Training

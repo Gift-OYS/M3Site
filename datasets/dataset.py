@@ -25,10 +25,10 @@ class ProteinDataset(Dataset):
         self.text_max_length = config.dataset.text_max_length
         self.threshold = config.dataset.edge_radius
         self.root = config.dataset.data_path
-        self.df = pd.read_csv(f'{self.root}/splits/{type}/{type}_{config.dataset.split}_new.tsv', sep='\t')
-        self.df = self.df.dropna(subset=['Function [CC]']).reset_index(drop=True)
+        self.df = pd.read_csv(f'{self.root}/splits/{type}/{type}_{config.dataset.split}.tsv', sep='\t')
         self.label_json = json.load(open(f'{self.root}/label.json', 'r'))
 
+        # check data consistency
         self.pre_return_list = []
         for entity in self.df['Entry'].values:
             if entity not in self.label_json:
@@ -38,10 +38,8 @@ class ProteinDataset(Dataset):
                 raise ValueError(f'Processed file {pt_path} does not exist.')
             tmp_d = torch.load(pt_path)
             if tmp_d.x.shape[0] != len(self.label_json[entity]):
-                print(tmp_d.x)
-                print(tmp_d.x.shape[0], len(self.label_json[entity]))
-                # raise ValueError(f'Processed file {pt_path} has inconsistent node count with label.json for entity {entity}.')
-            self.pre_return_list.append(f'{entity}.pt')
+                raise ValueError(f'Processed file {pt_path} has inconsistent node count with label.json for entity {entity}.')
+            self.pre_return_list.append(entity)
 
         # # to_accelerate_read 1
         # self.pre_return_list = []

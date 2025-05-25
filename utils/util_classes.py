@@ -60,9 +60,9 @@ class CenterLoss(nn.Module):
                     self.centers[label] = self.centers[label] + self.alpha * center_delta
 
 
-class InterClassLoss(nn.Module):
+class InterLoss(nn.Module):
     def __init__(self, margin=0.0001):
-        super(InterClassLoss, self).__init__()
+        super(InterLoss, self).__init__()
         self.margin = margin
 
     def forward(self, centers):

@@ -3,8 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import BatchNorm
 
-from utils.util_functions import cos_sim, kl_loss
-from utils.util_classes import CenterLoss, InterClassLoss
+from utils.util_classes import CenterLoss, InterLoss
 from model.egnn.network import EGNN
 
 
@@ -13,9 +12,9 @@ class M3Site(torch.nn.Module):
     def __init__(self, config, hidden_size=256):
         super(M3Site, self).__init__()
         self.config = config
-        if '3' in config.dataset.lm:
+        if '3' in config.dataset.tag:
             self.embedding_dim = 1536
-        elif 't5' in config.dataset.lm:
+        elif 't5' in config.dataset.tag:
             self.embedding_dim = 1024
         else:
             self.embedding_dim = 1280
@@ -30,7 +29,7 @@ class M3Site(torch.nn.Module):
         self.funicross2 = FunICross(self.embedding_dim, self.egnn_out_dim, condition_dim=768)
         self.weight_fc = nn.Linear((self.embedding_dim+self.egnn_out_dim) * 2, 1)
         self.center_loss = CenterLoss(num_classes=self.num_classes, feat_dim=7)
-        self.inter_loss = InterClassLoss(margin=0.1)
+        self.inter_loss = InterLoss(margin=0.1)
         self.ab_egnn = nn.Linear(self.egnn_out_dim, self.embedding_dim+self.egnn_out_dim)
         self.ab_esm = nn.Linear(self.embedding_dim, self.embedding_dim+self.egnn_out_dim)
 

@@ -23,7 +23,7 @@ egnn:
 dataset:
   data_path: data
   process: False # If you want to preprocess the data by yourself, you may need to set this to True
-  tag: 3_abs
+  tag: esm3_abs
   text_max_length: 512
   split: 0.3
   edge_radius: 8.0

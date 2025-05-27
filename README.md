@@ -22,7 +22,7 @@ pip install -r app/requirements.txt
 
 #### 📁 Dataset
 
-We have provided the preprocessed data `esm3_abs.zip` in [LINK](https://pan.baidu.com/s/1JP3OgoU7reIbSsz-RFwiXQ?pwd=5dnb) to reproduce the main results in our paper for convenience. You can download and unzip the data to the `data` folder. The preprocessed data contains 25,883 protein as the type `torch_geometric.data.data.Data`. For each protein `UniProt_ID.pt`, the data contains the following attributes:
+We have provided the preprocessed data `esm3_abs.zip` in [LINK](https://pan.baidu.com/s/1ZGfmgZrZNn857cCLLsIW1Q?pwd=u9yf) to reproduce the main results in our paper for convenience. You can download and unzip the data to the `data` folder. The preprocessed data contains 25,883 protein as the type `torch_geometric.data.data.Data`. For each protein `UniProt_ID.pt`, the data contains the following attributes:
 - `x`: The index of the amino acids in the protein sequence, with shape `[num_nodes, 1]`.
 - `edge_index`: The edge index of the protein structure, with shape `[2, num_edges]`.
 - `edge_attr`: The edge attributes of the protein structure, with shape `[num_edges, 1]`.

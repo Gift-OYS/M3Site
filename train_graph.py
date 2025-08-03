@@ -10,7 +10,7 @@ import sys
 proj_path = os.path.abspath('.')
 sys.path.append(proj_path)
 
-from utils.util_functions import read_config, log_metrics, prepare, get_model, measure_graph
+from utils.util_functions import read_config, log_metrics, prepare, get_model, measure_graph, save_pdb
 from utils.util_classes import WarmupCosineAnnealingLR
 from torch_geometric.data import DataLoader
 from datasets.dataset import ProteinDataset
@@ -117,7 +117,7 @@ def evaluate(epochs, epoch, model, val_loader, criterion, align=False):
     return val_metric_dict_token
 
 
-def test(checkpoint_path, test_loader):
+def test(checkpoint_path, test_loader, config):
     model = torch.load(checkpoint_path, map_location=device)
     model.eval()
     test_metric_dict_token = {}
@@ -134,6 +134,17 @@ def test(checkpoint_path, test_loader):
             t = batch.y.cpu().numpy()
             pp = np.concatenate((pp, p))
             tt = np.concatenate((tt, t))
+
+            if config.train.save_conf:
+                for graph_idx in range(len(batch.ptr) - 1):
+                    mask = (batch.batch == graph_idx)
+                    stru_seq_seq = output['attn_weights_1'][graph_idx][:sum(mask)]
+                    seq_stru_stru = output['attn_weights_2'][graph_idx][:sum(mask)]
+                    stru_seq_seq = (stru_seq_seq - np.min(stru_seq_seq)) / (np.max(stru_seq_seq) - np.min(stru_seq_seq))
+                    seq_stru_stru = (seq_stru_stru - np.min(seq_stru_stru)) / (np.max(seq_stru_stru) - np.min(seq_stru_stru))
+
+                    save_pdb(config.dataset.pdb_dir, batch.entity[graph_idx], stru_seq_seq, "o_struct")
+                    save_pdb(config.dataset.pdb_dir, batch.entity[graph_idx], seq_stru_stru, "o_seq")
 
         print('Confusion Matrix:')
         cm = confusion_matrix(tt, pp)
@@ -180,4 +191,4 @@ if __name__ == '__main__':
 
     checkpoint_path_total = fuse(model, train_loader, val_loader)
     pprint("Testing ...")
-    test(checkpoint_path_total, test_loader)
+    test(checkpoint_path_total, test_loader, config)

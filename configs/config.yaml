@@ -29,6 +29,7 @@ dataset:
   edge_radius: 8.0
   property_dim: 62
   batch_size: 24
+  pdb_dir: /path/to/test/pdb/dir # Optional: if you want to save the predicted confidence score along with original structure file
 
 train:
   gpu_id: 0
@@ -38,3 +39,4 @@ train:
   loss: [ce, 0.01]
   lambda1: 0.1
   lambda2: 0.001
+  save_conf: False # If True, you should assign dataset:pdb_dir

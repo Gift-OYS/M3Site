@@ -88,6 +88,7 @@ class ProteinDataset(Dataset):
         label = torch.tensor(self.label_json[name], dtype=torch.long)
         data = torch.load(os.path.join(self.processed_dir, f'{name}.pt'))
         data.y = label
+        data.entity = name
         return data
 
     def _get_props(self, entity):

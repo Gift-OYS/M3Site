@@ -75,6 +75,8 @@ class M3Site(torch.nn.Module):
             'token_logits': recon_out,
             'center_loss': center_loss,
             'inter_loss': inter_loss,
+            'attn_weights_1': attn_weights_1,
+            'attn_weights_2': attn_weights_2
         }
 
 

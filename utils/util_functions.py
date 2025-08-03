@@ -10,8 +10,12 @@ import numpy as np
 from typing import Callable, Any
 from easydict import EasyDict
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, average_precision_score, matthews_corrcoef
+from Bio.PDB import PDBParser, PDBIO
 
 from .util_classes import MyPrint
+
+p = PDBParser(QUIET=True)
+
 
 def set_seed(seed=42):
     torch.manual_seed(seed)
@@ -121,3 +125,14 @@ def log_metrics(pprint: Callable[..., Any], thistype: str, epoch: int = None, me
     for metric in metric_dict:
         info_str += f'{metric}: {metric_dict[metric]:.8f}, '
     pprint(info_str)
+
+
+def save_pdb(pdb_dir, entity, score, flag):
+    structure = p.get_structure('protein', f'{pdb_dir}/{entity}.pdb')
+    for i, r in enumerate(structure[0]['A']):
+        for a in r:
+            a.set_bfactor(score[i])
+    io = PDBIO()
+    io.set_structure(structure)
+    io.save(f'{pdb_dir}/{entity}-{flag}.pdb')
+    print(f"Saved confidence score of {entity} to {pdb_dir}/{entity}-{flag}.pdb")
